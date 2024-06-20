@@ -56,5 +56,3 @@ void loop() {
   html = String(capacidade);
   delay(2000); // Aguarda 1 segundo antes de fazer a próxima leitura
 }
-//long -> A variável "long" é utilizada para armazenar números inteiros longos, ou seja, números inteiros maiores do que os que podem ser armazenados em uma variável "int"
-//delayMicroseconds -> A função delayMicroseconds() lida com microssegundos (10 elevado a -6 segundos), enquanto a função delay() lida com milissegundos (10 elevado a -3 segundos).

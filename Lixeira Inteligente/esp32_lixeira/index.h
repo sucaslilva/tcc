@@ -1,7 +1,7 @@
 //float valor = 0.00; 
 
 const char INDEX_HTML[] PROGMEM = R"=====(
-    <!DOCTYPE html>
+   <!DOCTYPE html>
 <html>
 
 <head>
@@ -12,6 +12,7 @@ const char INDEX_HTML[] PROGMEM = R"=====(
     <script src="https://www.gstatic.com/charts/loader.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://www.gstatic.com/charts/loader.js"></script>
     <style>
         #myHeader {
             background-color: silver;
@@ -21,31 +22,87 @@ const char INDEX_HTML[] PROGMEM = R"=====(
             font-family: Verdana, Geneva, Tahoma, sans-serif;
         }
 
+        #subtext {
+
+            color: black;
+
+            text-align: center;
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+        }
+        
+        div.grafico {
+            width: 600px;
+            margin: auto;
+        }
+
         /*div.graficos {
             width: 100%;
             overflow: auto;
         }*/
 
-        div.graficos {
-            width: 30%;
-            margin: auto;
-        }
 
         /* div.graficos div {
             width: 100%;
             display: inline-block;
             text-align: center;
         }*/
+        .botao {
+            background-color: #b1b3b2;
+            /* Green */
+            border: none;
+            color: black;
+            padding: 16px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            transition-duration: 0.4s;
+            cursor: pointer;
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+            border-radius: 6px;
 
-        
+        }
+
+        .botao {
+            box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+        }
+
+        .botao:hover {
+            box-shadow: 0 12px 16px 0 rgba(0, 0, 0, 0.24), 0 17px 50px 0 rgba(0, 0, 0, 0.19);
+        }
     </style>
 </head>
 
 <body>
     <h1 id="myHeader">Lixeira Inteligente</h1>
-    <div class="graficos">
+   
+    <div>
+        <h3 id="subtext">Sistema de Gerenciamento de Lixeiras para sua empresa!</h3>
+        <center>
+            <p>Bem-vindo ao nosso inovador Sistema de Gerenciamento de Lixeiras, projetado para otimizar a coleta e
+                o
+                descarte de resíduos urbanos. Este sistema avançado oferece uma interface intuitiva e fácil de usar,
+                com
+                uma variedade de funcionalidades para garantir uma gestão eficiente e sustentável do lixo.</p>
 
-        <div id="myChart" style="width:800px; height:500px;"></div>
+            <p>Ao lado direito da tela, você encontrará um gráfico de pizza interativo que exibe o volume de lixo
+                coletado em tempo real. Este gráfico mostra claramente a proporção entre o volume livre e o volume
+                ocupado nas lixeiras, permitindo uma visualização imediata do estado atual das mesmas. Com essa
+                ferramenta, os gestores podem monitorar e analisar os dados de forma eficaz, facilitando a tomada de
+                decisões e a implementação de estratégias de coleta.</p>
+
+            <p>Nosso sistema não só melhora a eficiência operacional, mas também contribui para um ambiente mais
+                limpo
+                e sustentável. Com a capacidade de gerar relatórios detalhados e alertas automáticos para a coleta
+                de
+                lixo, garantimos que as lixeiras nunca fiquem superlotadas, promovendo um ambiente urbano mais
+                organizado e saudável.</p>
+        </center>
+        <center><div class="grafico">
+            <div id="myChart" style="width:100%; max-width:800px; height:400px;"></div>
+        </div></center>
+        <center><button class="botao" onclick="recarregarAPagina()"><b>Atualizar Dados</b></button></center>
     </div>
 
     <script>
@@ -53,7 +110,6 @@ const char INDEX_HTML[] PROGMEM = R"=====(
 
         google.charts.load('current', { 'packages': ['corechart'] });
         google.charts.setOnLoadCallback(drawChart);
-
 
 
         function drawChart() {
@@ -65,15 +121,19 @@ const char INDEX_HTML[] PROGMEM = R"=====(
                 ['Volume Ocupado', {VALUE}]
             ]);
 
-            // Set Options
             const options = {
-                title: 'Porcentagem do Uso da Lixeira'
+                title: 'Porcentagem do Uso da Lixeira',
+                is3D: true
             };
 
             // Draw
             const chart = new google.visualization.PieChart(document.getElementById('myChart'));
             chart.draw(data, options);
 
+        }
+
+        function recarregarAPagina() {
+            window.location.reload();
         }
 
 
