@@ -1,0 +1,7 @@
+Cores da marca
+Verde - #1BB89C
+Azul - #03366A
+Branco - #FFFFFF
+Cinza - #e7e7e7
+
+Fonte Principal - Righteous
