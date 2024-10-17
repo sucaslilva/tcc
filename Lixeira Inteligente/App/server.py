@@ -13,6 +13,7 @@ brt = timezone(timedelta(hours=-3))
 class gravaUser(orm.Model) :
     codusu = orm.Column(orm.Integer, primary_key = True, autoincrement = True)
     email = orm.Column(orm.String, nullable = False,unique=True)
+    login = orm.Column(orm.String, nullable = False) 
     senha = orm.Column(orm.String, nullable = False)    
     nome = orm.Column(orm.String, nullable = False)
     cpf = orm.Column(orm.String, nullable = False)
@@ -22,6 +23,7 @@ class sensor(orm.Model) :
     codsensor = orm.Column(orm.Integer, primary_key = True, autoincrement = True)
     descricao = orm.Column(orm.String, nullable = False)
     ip = orm.Column(orm.String, nullable = False)
+    altura = orm.Column(orm.Float, nullable = False)
     logs = orm.relationship('logSensor', backref='sensor', lazy=True)
 
 class logSensor(orm.Model):
@@ -44,6 +46,18 @@ def cadastro_page():
 def home_page():
     return render_template('home.html')
 
+@servidor.route("/user")
+def user_page():
+    return render_template('users.html')
+
+@servidor.route("/sensor")
+def sensor_page():
+    return render_template('sensor.html')
+
+@servidor.route("/dashboard")
+def dashboard_page():
+    return render_template('dashboard.html')
+
 #cadastro de usuários
 @servidor.route("/cadastrar",methods =["POST"])
 def cadastrar_usuario():
@@ -60,6 +74,7 @@ def cadastrar_usuario():
 
     user = gravaUser(
         email=dados['email'],
+        login = dados['login'],
         senha=hashed_password.decode('utf-8'),        
         nome=dados['nome'],
         cpf=dados['cpf'],
@@ -84,7 +99,8 @@ def cadastrar_sensor():
 
     sen = sensor(
         descricao=dados['descricao'],
-        ip=dados['ip'],        
+        ip=dados['ip'], 
+        altura=dados['altura']       
     )
 
     try:
@@ -133,22 +149,68 @@ def login():
     else:
         return jsonify({"mensagem": "Email ou senha inválidos"}), 401
 
-"""
-#listagem de pais
-@servidor.route("/paises")
-def listagem_pais():
-    paises = RedDes.query.all()
+
+#listagem de usuarios
+@servidor.route("/usuarios")
+def listar_user():
+    user = gravaUser.query.all()
 
     response = [{
-        "pais" : pais.pais,
-        "dsocial" : pais.dsocial,
-        "deco" : pais.deco,
-        "dpol" : pais.dpol
-    } for pais in paises ]
+        "codusu" : user.codusu,
+        "login" : user.login,
+        "nome" : user.nome,
+        "email" : user.email,
+        "cpf" : user.cpf,
+        "dataNascimento" : user.dataNascimento
+    } for user in user ]
 
     return response,200
 
-"""
+#listagem de sensores
+@servidor.route("/sensores")
+def listar_sensor():
+    try:
+        sensores = sensor.query.all()  # Certifique-se de chamar a função .all()
+
+        response = [{
+            "codsensor": sensor.codsensor,
+            "descricao": sensor.descricao,
+            "ip": sensor.ip,
+            "altura" : sensor.altura
+        } for sensor in sensores]
+
+        return jsonify(response), 200
+    except Exception as e:
+        return jsonify(str(e)), 500
+
+@servidor.route("/user/<int:codusu>", methods=['DELETE'])
+def deletar_usuario(codusu) :
+    try:
+        delUser = gravaUser.query.get(codusu)
+        
+        orm.session.delete(delUser)
+        orm.session.commit()
+
+        response = {"mensagem":"usuário deletado"},200
+    except Exception as e:
+        response = {"mensagem":"erro de servidor" + str(e)}, 500
+    
+    return response
+
+@servidor.route("/sensor/<int:codsensor>", methods=['DELETE'])
+def deletar_sensor(codsensor) :
+    try:
+        delSensor = sensor.query.get(codsensor)
+        
+        orm.session.delete(delSensor)
+        orm.session.commit()
+
+        response = {"mensagem":"sensor deletado"},200
+    except Exception as e:
+        response = {"mensagem":"erro de servidor" + str(e)}, 500
+    
+    return response
+
 with servidor.app_context():
     orm.create_all()
 

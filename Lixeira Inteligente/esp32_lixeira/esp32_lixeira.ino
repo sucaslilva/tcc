@@ -3,15 +3,48 @@
 #include <WiFiAP.h>
 #include <ESPAsyncWebServer.h>
 #include <string.h>
+#include <HTTPClient.h>
 #include "index.h"
 const int PINO_TRIG = 4; // Pino D4 conectado ao TRIG do HC-SR04
 const int PINO_ECHO = 2; // Pino D2 conectado ao ECHO do HC-SR04
 
-const char *ssid = "iPhone de Lucas";
-const char *senha = "lpsilva123";
+const char *ssid = "LUCAS";
+const char *senha = "Lpsilva123";
+
+const char* serverUrl = "http://lsconnectiondb.ddns.net:8180/status";
+
+
 String html = "";
 float altura = 33.00;
 AsyncWebServer server(80);
+void sendSensorData(int sensor_id, float porc_vol) {
+  if (WiFi.status() == WL_CONNECTED) {
+    HTTPClient http;
+
+    http.begin(serverUrl);
+    http.addHeader("Content-Type", "application/json");
+
+    // Cria o JSON para enviar
+    String jsonData = "{\"sensor_id\": " + String(sensor_id) + ", \"porc_vol\": " + String(porc_vol) + "}";
+
+    // Envia o pedido POST
+    int httpResponseCode = http.POST(jsonData);
+
+    // Verifica a resposta do servidor
+    if (httpResponseCode > 0) {
+      String response = http.getString();
+      Serial.println(httpResponseCode);
+      Serial.println(response);
+    } else {
+      Serial.print("Erro ao enviar POST: ");
+      Serial.println(httpResponseCode);
+    }
+
+    http.end();
+  } else {
+    Serial.println("Erro na conexão Wi-Fi");
+  }
+}
 void setup() {
   // Inicio código sensor
   Serial.begin(9600); // Inicializa a comunicação serial
@@ -34,11 +67,11 @@ void setup() {
   Serial.println("IP: ");
   Serial.println(WiFi.localIP());
 
-  server.on("/", HTTP_GET, [] (AsyncWebServerRequest *request){
+ /*server.on("/", HTTP_GET, [] (AsyncWebServerRequest *request){
     request->send(200,"text/html",getHTML(html));
   });
 
-  server.begin();
+  server.begin();*/
 }
 void loop() {
   digitalWrite(PINO_TRIG, LOW);
@@ -53,6 +86,7 @@ void loop() {
   Serial.print(distancia);
   Serial.println(" cm");
   float capacidade = 100 - ((distancia * 100) / altura);
-  html = String(capacidade);
-  delay(2000); // Aguarda 1 segundo antes de fazer a próxima leitura
+  sendSensorData(1, capacidade); 
+  //html = String(capacidade);
+  delay(20000);
 }
