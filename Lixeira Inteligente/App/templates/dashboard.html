@@ -18,7 +18,7 @@
       document.addEventListener("DOMContentLoaded", (event) => {
         var xValues = ["Volume Livre", "Volume Ocupado"];
         var yValues = [70, 30];
-        var barColors = ["#03366A", "#00aba9"];
+        var barColors = ["#00aba9", "rgb(255, 99, 132)"];
 
         new Chart("myChart", {
           type: "doughnut",
@@ -30,10 +30,35 @@
                 data: yValues,
               },
             ],
-          }
+          },
         });
       });
+
+      function updateClock() {
+        var now = new Date();
+        var hours = now.getHours();
+        var minutes = now.getMinutes();
+        var seconds = now.getSeconds();
+
+        // Adicionar um zero na frente de números menores que 10
+        hours = hours < 10 ? "0" + hours : hours;
+        minutes = minutes < 10 ? "0" + minutes : minutes;
+        seconds = seconds < 10 ? "0" + seconds : seconds;
+
+        var currentTime = hours + ":" + minutes + ":" + seconds;
+        document.getElementById("clock").textContent = currentTime;
+      }
+
+      // Atualiza o relógio uma vez imediatamente e depois a cada segundo
+      updateClock();
+      setInterval(updateClock, 1000);
     </script>
+    <style>
+      .table-wrapper {
+        max-height: 400px; /* Ajuste o valor conforme necessário */
+        overflow-y: auto;
+      }
+    </style>
   </head>
 
   <body style="height: 100vh; background: #e7e7e7">
@@ -92,7 +117,7 @@
         <div class="g-col-6 g-col-md-4">
           <div class="card">
             <div class="card-body">
-              Qtd. Usuários
+              Usuários
               <div class="row">
                 <div class="col"><h1 style="color: #1bb89c">2</h1></div>
                 <div class="col text-end" style="color: #1bb89c">
@@ -118,7 +143,7 @@
         <div class="g-col-6 g-col-md-4">
           <div class="card">
             <div class="card-body">
-              Qtd. Sensores
+              Lixeiras
               <div class="row">
                 <div class="col"><h1 style="color: #1bb89c">2</h1></div>
                 <div class="col text-end" style="color: #1bb89c">
@@ -128,11 +153,15 @@
                       width="16"
                       height="16"
                       fill="currentColor"
-                      class="bi bi-person-fill"
+                      class="bi bi-trash"
                       viewBox="0 0 16 16"
                     >
                       <path
-                        d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6"
+                        d="M5.5 5.5A.5.5 0 0 1 6 6v7a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v7a.5.5 0 0 0 1 0V6zm2.5-.5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5z"
+                      />
+                      <path
+                        fill-rule="evenodd"
+                        d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1 0-2h3a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1h3a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3a.5.5 0 0 0 0 1H13.5a.5.5 0 0 0 0-1H2.5z"
                       />
                     </svg>
                   </h1>
@@ -144,25 +173,8 @@
         <div class="g-col-6 g-col-md-4">
           <div class="card">
             <div class="card-body">
-              Qtd. Usuários
               <div class="row">
-                <div class="col"><h1 style="color: #1bb89c">2</h1></div>
-                <div class="col text-end" style="color: #1bb89c">
-                  <h1>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      fill="currentColor"
-                      class="bi bi-person-fill"
-                      viewBox="0 0 16 16"
-                    >
-                      <path
-                        d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6"
-                      />
-                    </svg>
-                  </h1>
-                </div>
+                <h1 id="clock" class="display-4"></h1>
               </div>
             </div>
           </div>
@@ -182,26 +194,72 @@
         </div>
         <div class="g-col-6">
           <div class="card">
-            <div class="card-body">
-              Qtd. Usuários
+            <div class="card-body table-wrapper">
+              Log Lixeira
               <div class="row">
-                <div class="col"><h1 style="color: #1bb89c">2</h1></div>
-                <div class="col text-end" style="color: #1bb89c">
-                  <h1>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      fill="currentColor"
-                      class="bi bi-person-fill"
-                      viewBox="0 0 16 16"
-                    >
-                      <path
-                        d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6"
-                      />
-                    </svg>
-                  </h1>
-                </div>
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th scope="col">#</th>
+                      <th scope="col">First</th>
+                      <th scope="col">Last</th>
+                      <th scope="col">Handle</th>
+                    </tr>
+                  </thead>
+                  <tbody class="table-group-divider">
+                    <tr>
+                      <th scope="row">1</th>
+                      <td>Mark</td>
+                      <td>Otto</td>
+                      <td>@mdo</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">2</th>
+                      <td>Jacob</td>
+                      <td>Thornton</td>
+                      <td>@fat</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">3</th>
+                      <td colspan="2">Larry the Bird</td>
+                      <td>@twitter</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">1</th>
+                      <td>Mark</td>
+                      <td>Otto</td>
+                      <td>@mdo</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">2</th>
+                      <td>Jacob</td>
+                      <td>Thornton</td>
+                      <td>@fat</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">3</th>
+                      <td colspan="2">Larry the Bird</td>
+                      <td>@twitter</td>
+                    </tr><tr>
+                      <th scope="row">1</th>
+                      <td>Mark</td>
+                      <td>Otto</td>
+                      <td>@mdo</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">2</th>
+                      <td>Jacob</td>
+                      <td>Thornton</td>
+                      <td>@fat</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">3</th>
+                      <td colspan="2">Larry the Bird</td>
+                      <td>@twitter</td>
+                    </tr>
+                    <!-- Adicione mais linhas conforme necessário -->
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
