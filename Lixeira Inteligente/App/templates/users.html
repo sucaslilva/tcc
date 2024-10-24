@@ -1,358 +1,137 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Usuários</title>
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-    <link
-      href="https://getbootstrap.com/docs/5.3/assets/css/docs.css"
-      rel="stylesheet"
-    />
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-      async function getData() {
-        try {
-          const response = await fetch("/usuarios"); // Substitua '/endpoint' pelo seu endpoint
 
-          if (!response.ok) {
-            throw new Error(
-              "Network response was not ok " + response.statusText
-            );
-          }
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Usuários</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://getbootstrap.com/docs/5.3/assets/css/docs.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="{{ url_for('static', filename='scripts/users.js') }}"></script>
+</head>
 
-          const data = await response.json();
-          populateTable(data); // Chama a função para popular a tabela com os dados
-        } catch (error) {
-          console.error("Houve um problema com a operação fetch:", error);
-        }
-      }
-
-      function populateTable(users) {
-        const tableBody = document.getElementById("userTableBody");
-        tableBody.innerHTML = ""; // Limpa o conteúdo existente
-
-        users.forEach((user, index) => {
-          const row = tableBody.insertRow();
-
-          const cod = row.insertCell(0);
-          const nome = row.insertCell(1);
-          const login = row.insertCell(2);
-          const email = row.insertCell(3);
-          const cpf = row.insertCell(4);
-          const dtnas = row.insertCell(5);
-          cod.textContent = user.codusu; // ID começa em 1
-          nome.textContent = user.nome; // Ajuste os nomes das propriedades conforme seu JSON
-          email.textContent = user.email; // Ajuste os nomes das propriedades conforme seu JSON
-          cpf.textContent = user.cpf; // Ajuste os nomes das propriedades conforme seu JSON
-          // Converte a string para um objeto Date
-          const dataObj = new Date(user.dataNascimento);
-
-          // Formata a data no formato desejado (dd/mm/yyyy)
-          const dia = String(dataObj.getDate()).padStart(2, "0"); // Pega o dia e adiciona 0 à esquerda, se necessário
-          const mes = String(dataObj.getMonth() + 1).padStart(2, "0"); // Pega o mês (0-11), então adiciona 1
-          const ano = dataObj.getFullYear(); // Pega o ano
-
-          // Monta a data formatada
-          const dataFormatada = `${dia}/${mes}/${ano}`;
-          dtnas.textContent = dataFormatada; // Ajuste os nomes das propriedades conforme seu JSON
-          login.textContent = user.login;
-        });
-      }
-
-      // Chama a função getData quando a página é carregada
-      window.onload = getData;
-      async function cadastrarUsuario(event) {
-        event.preventDefault();
-        const form = document.getElementById("cadastroForm");
-        const formData = new FormData(form);
-        const data = {
-          email: formData.get("email"),
-          login: formData.get("login"),
-          senha: formData.get("senha"),
-          nome: formData.get("nome"),
-          cpf: formData.get("cpf"),
-          dataNascimento: formData.get("dataNascimento"),
-        };
-
-        const response = await fetch("/cadastrar", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
-        });
-
-        const result = await response.json();
-        if (response.ok) {
-          window.location.href = "/user";
-        } else {
-          alert("Erro: " + result.mensagem);
-        }
-      }
-
-      async function excluirUsuario(event) {
-        event.preventDefault();
-        const form = document.getElementById("cadastroForm2");
-        const formData = new FormData(form);
-        const codusu = formData.get("codusu");
-
-        const response = await fetch("/user/" + codusu, {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-
-        const result = await response.json();
-        if (response.ok) {
-          window.location.href = "/user";
-        } else {
-          alert("Erro: " + result.mensagem);
-        }
-      }
-    </script>
-  </head>
-
-  <body style="height: 100vh; background: #e7e7e7">
-    <nav class="navbar navbar-expand-lg" style="background-color: #03366a">
-      <div class="container-fluid">
-        <a class="navbar-brand" href="#"
-          ><img
-            src="{{ url_for('static', filename='image/logo-brancol.png') }}"
-            alt="Logo"
-            width="125"
-            height="35"
-            class="d-inline-block align-text-top"
-        /></a>
-        <button
-          class="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarNav"
-          aria-controls="navbarNav"
-          aria-expanded="true"
-          aria-label="Toggle navigation"
-        >
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav">
-            <li class="nav-item">
-              <a
-                class="nav-link active"
-                aria-current="page"
-                href="/home"
-                style="color: white"
-                >Home</a
-              >
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/user" style="color: white">Usuários</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/sensor" style="color: white"
-                >Sensores</a
-              >
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/dashboard" style="color: white">Dashboard</a>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </nav>
-    <div class="geral" style="margin: 20px">
-      <div class="table-responsive">
-        <table class="table table-striped caption-top table-borderless">
-          <caption>
-            Lista de Usuários
-          </caption>
-          <thead>
-            <tr>
-              <th scope="col">Cód. Usuário</th>
-              <th scope="col">Nome Usuário</th>
-              <th scope="col">Login</th>
-              <th scope="col">E-mail</th>
-              <th scope="col">CPF</th>
-              <th scope="col">Data de Nascimento</th>
-            </tr>
-          </thead>
-          <tbody class="table-group-divider" id="userTableBody">
-            <!-- Dados serão inseridos aqui -->
-          </tbody>
-        </table>
-      </div>
-      <button
-        class="btn"
-        type="button"
-        data-bs-toggle="offcanvas"
-        data-bs-target="#staticBackdrop"
-        aria-controls="staticBackdrop"
-        style="background-color: #1bb89c; color: white"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="16"
-          height="16"
-          fill="currentColor"
-          class="bi bi-plus-lg"
-          viewBox="0 0 16 16"
-        >
-          <path
-            fill-rule="evenodd"
-            d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"
-          />
-        </svg>
+<body style="height: 100vh; background: #e7e7e7">
+  <nav class="navbar navbar-expand-lg" style="background-color: #03366a">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#"><img src="{{ url_for('static', filename='image/logo-brancol.png') }}" alt="Logo"
+          width="125" height="35" class="d-inline-block align-text-top" /></a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+        aria-controls="navbarNav" aria-expanded="true" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
       </button>
-      <button
-        class="btn"
-        type="button"
-        data-bs-toggle="offcanvas"
-        data-bs-target="#staticBackdropDelete"
-        aria-controls="staticBackdrop"
-        style="background-color: #dc3545; color: white"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="16"
-          height="16"
-          fill="currentColor"
-          class="bi bi-x-lg"
-          viewBox="0 0 16 16"
-        >
-          <path
-            d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"
-          />
-        </svg>
-      </button>
-      <div
-        class="offcanvas offcanvas-start"
-        data-bs-backdrop="static"
-        tabindex="-1"
-        id="staticBackdrop"
-        aria-labelledby="staticBackdropLabel"
-      >
-        <div class="offcanvas-header">
-          <h5 class="offcanvas-title" id="staticBackdropLabel">
-            Cadastrar Usuário
-          </h5>
-          <button
-            type="button"
-            class="btn-close"
-            data-bs-dismiss="offcanvas"
-            aria-label="Close"
-          ></button>
-        </div>
-        <div class="offcanvas-body">
-          <div>
-            <form id="cadastroForm" onsubmit="cadastrarUsuario(event)">
-              <div class="mb-3">
-                <label for="email" class="form-label">E-mail</label>
-                <input
-                  type="email"
-                  name="email"
-                  class="form-control"
-                  required
-                />
-              </div>
-              <div class="mb-3">
-                <label for="login" class="form-label">Login</label>
-                <input
-                  type="login"
-                  name="login"
-                  class="form-control"
-                  required
-                />
-              </div>
-              <div class="mb-3">
-                <label for="senha" class="form-label">Senha</label>
-                <input
-                  type="password"
-                  name="senha"
-                  class="form-control"
-                  required
-                />
-              </div>
-              <div class="mb-3">
-                <label for="nome" class="form-label">Nome</label>
-                <input type="text" name="nome" class="form-control" required />
-              </div>
-              <div class="mb-3">
-                <label for="cpf" class="form-label">CPF</label>
-                <input type="text" name="cpf" class="form-control" required />
-              </div>
-              <div class="mb-3">
-                <label for="dataNascimento" class="form-label"
-                  >Data de Nascimento</label
-                >
-                <input
-                  type="date"
-                  name="dataNascimento"
-                  class="form-control"
-                  required
-                />
-              </div>
-              <div class="d-grid gap-2">
-                <button
-                  type="submit"
-                  class="btn"
-                  style="background-color: #1bb89c; color: white"
-                >
-                  Cadastrar
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link" href="/dashboard" style="color: white">Dashboard</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/user" style="color: white">Usuários</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/sensor" style="color: white">Sensores</a>
+          </li>
+        </ul>
       </div>
-      <div
-        class="offcanvas offcanvas-start"
-        data-bs-backdrop="static"
-        tabindex="-1"
-        id="staticBackdropDelete"
-        aria-labelledby="staticBackdropLabel"
-      >
-        <div class="offcanvas-header">
-          <h5 class="offcanvas-title" id="staticBackdropLabel">
-            Excluir Usuário
-          </h5>
-          <button
-            type="button"
-            class="btn-close"
-            data-bs-dismiss="offcanvas"
-            aria-label="Close"
-          ></button>
-        </div>
-        <div class="offcanvas-body">
-          <div>
-            <form id="cadastroForm2" onsubmit="excluirUsuario(event)">
-              <div class="mb-3">
-                <label for="codusu" class="form-label">Cód. Usuário</label>
-                <input
-                  type="number"
-                  name="codusu"
-                  class="form-control"
-                  required
-                />
-              </div>
-
-              <div class="d-grid gap-2">
-                <button
-                  type="submit"
-                  class="btn"
-                  style="background-color: #dc3545; color: white"
-                >
-                  Excluir
-                </button>
-              </div>
-            </form>
-          </div>
+    </div>
+  </nav>
+  <div class="geral" style="margin: 20px">
+    <div class="table-responsive">
+      <table class="table table-striped caption-top table-borderless">
+        <caption>
+          Lista de Usuários
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">Cód. Usuário</th>
+            <th scope="col">Nome Usuário</th>
+            <th scope="col">Login</th>
+            <th scope="col">E-mail</th>
+          </tr>
+        </thead>
+        <tbody class="table-group-divider" id="userTableBody">
+          <!-- Dados serão inseridos aqui -->
+        </tbody>
+      </table>
+    </div>
+    <button class="btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#staticBackdrop"
+      aria-controls="staticBackdrop" style="background-color: #1bb89c; color: white">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg"
+        viewBox="0 0 16 16">
+        <path fill-rule="evenodd"
+          d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2" />
+      </svg>
+    </button>
+    <button class="btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#staticBackdropDelete"
+      aria-controls="staticBackdrop" style="background-color: #dc3545; color: white">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg"
+        viewBox="0 0 16 16">
+        <path
+          d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z" />
+      </svg>
+    </button>
+    <div class="offcanvas offcanvas-start" data-bs-backdrop="static" tabindex="-1" id="staticBackdrop"
+      aria-labelledby="staticBackdropLabel">
+      <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="staticBackdropLabel">
+          Cadastrar Usuário
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+      <div class="offcanvas-body">
+        <div>
+          <form id="cadastroForm" onsubmit="cadastrarUsuario(event)">
+            <div class="mb-3">
+              <label for="email" class="form-label">E-mail</label>
+              <input type="email" name="email" class="form-control" required />
+            </div>
+            <div class="mb-3">
+              <label for="login" class="form-label">Login</label>
+              <input type="login" name="login" class="form-control" required />
+            </div>
+            <div class="mb-3">
+              <label for="senha" class="form-label">Senha</label>
+              <input type="password" name="senha" class="form-control" required />
+            </div>
+            <div class="mb-3">
+              <label for="nome" class="form-label">Nome</label>
+              <input type="text" name="nome" class="form-control" required />
+            </div>
+            <div class="d-grid gap-2">
+              <button type="submit" class="btn" style="background-color: #1bb89c; color: white">
+                Cadastrar
+              </button>
+            </div>
+          </form>
         </div>
       </div>
     </div>
-  </body>
+    <div class="offcanvas offcanvas-start" data-bs-backdrop="static" tabindex="-1" id="staticBackdropDelete"
+      aria-labelledby="staticBackdropLabel">
+      <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="staticBackdropLabel">
+          Excluir Usuário
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+      <div class="offcanvas-body">
+        <div>
+          <form id="cadastroForm2" onsubmit="excluirUsuario(event)">
+            <div class="mb-3">
+              <label for="codusu" class="form-label">Cód. Usuário</label>
+              <input type="number" name="codusu" class="form-control" required />
+            </div>
+
+            <div class="d-grid gap-2">
+              <button type="submit" class="btn" style="background-color: #dc3545; color: white">
+                Excluir
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+
 </html>

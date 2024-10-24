@@ -2,6 +2,7 @@ from flask import Flask,request,jsonify,render_template
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timedelta, timezone
 from flask import Blueprint
+from sqlalchemy import func 
 import bcrypt
 
 servidor = Flask(__name__)
@@ -16,8 +17,6 @@ class gravaUser(orm.Model) :
     login = orm.Column(orm.String, nullable = False) 
     senha = orm.Column(orm.String, nullable = False)    
     nome = orm.Column(orm.String, nullable = False)
-    cpf = orm.Column(orm.String, nullable = False)
-    dataNascimento = orm.Column(orm.Date, nullable = False)
 
 class sensor(orm.Model) :
     codsensor = orm.Column(orm.Integer, primary_key = True, autoincrement = True)
@@ -42,10 +41,6 @@ def home():
 def cadastro_page():
     return render_template('cadastro.html')
 
-@servidor.route("/home")
-def home_page():
-    return render_template('home.html')
-
 @servidor.route("/user")
 def user_page():
     return render_template('users.html')
@@ -62,12 +57,6 @@ def dashboard_page():
 @servidor.route("/cadastrar",methods =["POST"])
 def cadastrar_usuario():
     dados = request.get_json()
-
-    # Converte a dataNascimento de string para datetime.date
-    try:
-        data_nascimento = datetime.strptime(dados['dataNascimento'], "%Y-%m-%d").date()
-    except ValueError as e:
-        return jsonify({"mensagem": "Formato de data inválido", "erro": str(e)}), 400
     
     # Hash da senha antes de armazenar
     hashed_password = bcrypt.hashpw(dados['senha'].encode('utf-8'), bcrypt.gensalt())
@@ -76,9 +65,7 @@ def cadastrar_usuario():
         email=dados['email'],
         login = dados['login'],
         senha=hashed_password.decode('utf-8'),        
-        nome=dados['nome'],
-        cpf=dados['cpf'],
-        dataNascimento=data_nascimento
+        nome=dados['nome']
     )
 
     try:
@@ -139,16 +126,15 @@ def status():
 @servidor.route("/login", methods=["POST"])
 def login():
     dados = request.get_json()
-    email = dados['email']
+    login = dados['email']
     senha = dados['senha']
 
-    user = gravaUser.query.filter_by(email=email).first()  # Buscando o usuário pelo email
+    user = gravaUser.query.filter_by(email=login).first()  # Buscando o usuário pelo email
 
     if user and bcrypt.checkpw(senha.encode('utf-8'), user.senha.encode('utf-8')):
         return jsonify({"mensagem": "Login bem-sucedido!", "codigo_usuario": user.codusu}), 200
     else:
         return jsonify({"mensagem": "Email ou senha inválidos"}), 401
-
 
 #listagem de usuarios
 @servidor.route("/usuarios")
@@ -159,9 +145,7 @@ def listar_user():
         "codusu" : user.codusu,
         "login" : user.login,
         "nome" : user.nome,
-        "email" : user.email,
-        "cpf" : user.cpf,
-        "dataNascimento" : user.dataNascimento
+        "email" : user.email
     } for user in user ]
 
     return response,200
@@ -182,6 +166,47 @@ def listar_sensor():
         return jsonify(response), 200
     except Exception as e:
         return jsonify(str(e)), 500
+
+#contagem de usuarios
+@servidor.route("/qtdusuarios")
+def qtd_user():
+    try:
+        user_count = gravaUser.query.count()
+
+        response = {
+            "total_usuarios" : user_count
+              } 
+        return jsonify(response), 200
+    except Exception as e:
+        return jsonify(str(e)), 400
+
+#contagem de lixeira
+@servidor.route("/qtdlixeira")
+def qtd_lixeira():
+    try:
+        sensor_count = sensor.query.count()
+
+        response = {
+            "total_lixeira" : sensor_count
+              } 
+        return jsonify(response), 200
+    except Exception as e:
+        return jsonify(str(e)), 400
+
+#maximo log da lixeira
+@servidor.route("/maxLogSensor")
+def max_lixeira():
+    try:
+        max_log = orm.session.query(func.max(logSensor.codlog)).scalar()
+        sensor_max = orm.session.query(logSensor).filter_by(codlog=max_log).first()
+        
+        response = {
+            "porc_max": sensor_max.porc_vol
+        } 
+        return jsonify(response), 200
+    except Exception as e:
+        return jsonify({"mensagem": "Erro: " + str(e)}), 400
+
 
 @servidor.route("/user/<int:codusu>", methods=['DELETE'])
 def deletar_usuario(codusu) :
@@ -209,6 +234,139 @@ def deletar_sensor(codsensor) :
     except Exception as e:
         response = {"mensagem":"erro de servidor" + str(e)}, 500
     
+    return response
+
+#atualiza nome do usuário
+@servidor.route("/atualizaNome", methods=['PUT'])
+def atualizar_nomeUsuario( ):
+    dados = request.get_json()
+
+    try:
+        user = gravaUser.query.get(dados['codusu'])
+        if user:
+
+            user.nome = dados['nome']
+
+            orm.session.commit()
+            response = {"mensagem": "Nome atualizado"}, 200
+        else:
+            response = {"mensagem": "Usuário não encontrado"}, 400
+    except Exception as e:
+        response = {"mensagem": "erro ao atualizar" + str(e)}, 500
+    return response
+
+#atualiza login do usuário
+@servidor.route("/atualizaLogin", methods=['PUT'])
+def atualizar_loginUsuario( ):
+    dados = request.get_json()
+
+    try:
+        user = gravaUser.query.get(dados['codusu'])
+        if user:
+
+            user.login = dados['login']
+
+            orm.session.commit()
+            response = {"mensagem": "Login atualizado"}, 200
+        else:
+            response = {"mensagem": "Usuário não encontrado"}, 400
+    except Exception as e:
+        response = {"mensagem": "erro ao atualizar" + str(e)}, 500
+    return response
+
+#atualiza email do usuário
+@servidor.route("/atualizaEmail", methods=['PUT'])
+def atualizar_emailUsuario( ):
+    dados = request.get_json()
+
+    try:
+        user = gravaUser.query.get(dados['codusu'])
+        if user:
+
+            user.email = dados['email']
+
+            orm.session.commit()
+            response = {"mensagem": "E-mail atualizado"}, 200
+        else:
+            response = {"mensagem": "Usuário não encontrado"}, 400
+    except Exception as e:
+        response = {"mensagem": "erro ao atualizar" + str(e)}, 500
+    return response
+
+#atualiza senha do usuário
+@servidor.route("/atualizaSenha", methods=['PUT'])
+def atualizar_senhaUsuario( ):
+    dados = request.get_json()
+    hashed_password = bcrypt.hashpw(dados['senha'].encode('utf-8'), bcrypt.gensalt())
+    try:
+        user = gravaUser.query.get(dados['codusu'])
+        if user:
+
+            user.senha = hashed_password.decode('utf-8')
+
+            orm.session.commit()
+            response = {"mensagem": "Senha atualizada"}, 200
+        else:
+            response = {"mensagem": "Usuário não encontrado"}, 400
+    except Exception as e:
+        response = {"mensagem": "erro ao atualizar" + str(e)}, 500
+    return response
+
+#atualiza descricao do sensor
+@servidor.route("/atualizaDescricao", methods=['PUT'])
+def atualizar_descricaoSensor( ):
+    dados = request.get_json()
+
+    try:
+        lixeira = sensor.query.get(dados['codsensor'])
+        if lixeira:
+
+            lixeira.descricao = dados['descricao']
+
+            orm.session.commit()
+            response = {"mensagem": "Descrição atualizada"}, 200
+        else:
+            response = {"mensagem": "Sensor não encontrado"}, 400
+    except Exception as e:
+        response = {"mensagem": "erro ao atualizar" + str(e)}, 500
+    return response
+
+#atualiza ip do sensor
+@servidor.route("/atualizaIp", methods=['PUT'])
+def atualizar_ipSensor( ):
+    dados = request.get_json()
+
+    try:
+        lixeira = sensor.query.get(dados['codsensor'])
+        if lixeira:
+
+            lixeira.ip = dados['ip']
+
+            orm.session.commit()
+            response = {"mensagem": "IP atualizado"}, 200
+        else:
+            response = {"mensagem": "Sensor não encontrado"}, 400
+    except Exception as e:
+        response = {"mensagem": "erro ao atualizar" + str(e)}, 500
+    return response
+
+#atualiza altura do sensor
+@servidor.route("/atualizaAltura", methods=['PUT'])
+def atualizar_alturaSensor( ):
+    dados = request.get_json()
+
+    try:
+        lixeira = sensor.query.get(dados['codsensor'])
+        if lixeira:
+
+            lixeira.altura = dados['altura']
+
+            orm.session.commit()
+            response = {"mensagem": "Altura atualizada"}, 200
+        else:
+            response = {"mensagem": "Sensor não encontrado"}, 400
+    except Exception as e:
+        response = {"mensagem": "erro ao atualizar" + str(e)}, 500
     return response
 
 with servidor.app_context():
