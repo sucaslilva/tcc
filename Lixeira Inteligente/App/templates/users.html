@@ -62,6 +62,14 @@
           d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2" />
       </svg>
     </button>
+    <button class="btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#staticBackdropUpdate"
+      aria-controls="staticBackdrop" style="background-color: #ffd700; color: black">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil"
+        viewBox="0 0 16 16">
+        <path
+          d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325" />
+      </svg>
+    </button>
     <button class="btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#staticBackdropDelete"
       aria-controls="staticBackdrop" style="background-color: #dc3545; color: white">
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg"
@@ -70,6 +78,7 @@
           d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z" />
       </svg>
     </button>
+
     <div class="offcanvas offcanvas-start" data-bs-backdrop="static" tabindex="-1" id="staticBackdrop"
       aria-labelledby="staticBackdropLabel">
       <div class="offcanvas-header">
@@ -128,6 +137,44 @@
               </button>
             </div>
           </form>
+        </div>
+      </div>
+    </div>
+    <div class="offcanvas offcanvas-start" data-bs-backdrop="static" tabindex="-1" id="staticBackdropUpdate"
+      aria-labelledby="staticBackdropLabel">
+      <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="staticBackdropLabel">
+          Atualizar Usuário
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+      <div class="offcanvas-body">
+        <div>
+          <form id="cadastroForm3" onsubmit="atualizarUsuario(event)">
+            <div class="mb-3">
+              <label for="codusu" class="form-label">Cód. Usuário</label>
+              <input type="number" name="codusu" class="form-control" required />
+            </div>
+            <div class="mb-3">
+              <label for="campo" class="form-label">Campo p/ Atualização</label>
+              <select class="form-select" aria-label="Default select example" name="campo" id="campo" onchange="mudarTipoCampo()">
+                <option value="1">Nome Usuário</option>
+                <option value="2">Login</option>
+                <option value="3">E-mail</option>
+                <option value="4">Senha</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="valor" class="form-label">Novo Valor</label>
+              <input id="valor" type="text" name="valor" class="form-control" required />
+            </div>
+            <div class="d-grid gap-2">
+              <button type="submit" class="btn" style="background-color: #ffd700; color: black">
+                Atualizar
+              </button>
+            </div>
+          </form>
+          <div id="mensagem"></div>
         </div>
       </div>
     </div>

@@ -207,6 +207,20 @@ def max_lixeira():
     except Exception as e:
         return jsonify({"mensagem": "Erro: " + str(e)}), 400
 
+#log no mês atual
+@servidor.route("/sensoresMesAtual")
+def busca_mes():
+    now = datetime.now()
+    valorini = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    valorfin = (now.replace(day=1) + timedelta(days=32)).replace(day=1, hour=23, minute=59, second=59, microsecond=999999) - timedelta(days=1)
+    sensores = logSensor.query.filter(logSensor.data_hora.between(valorini, valorfin)).all()
+    
+    response = [{
+            "data_hora" : sensor.data_hora.strftime("%d/%m/%Y"),
+            "porc_vol" : sensor.porc_vol
+        } for sensor in sensores ]
+
+    return response,200
 
 @servidor.route("/user/<int:codusu>", methods=['DELETE'])
 def deletar_usuario(codusu) :
@@ -216,7 +230,7 @@ def deletar_usuario(codusu) :
         orm.session.delete(delUser)
         orm.session.commit()
 
-        response = {"mensagem":"usuário deletado"},200
+        response = {"mensagem":"Usuário deletado com sucesso!"},200
     except Exception as e:
         response = {"mensagem":"erro de servidor" + str(e)}, 500
     
@@ -230,7 +244,7 @@ def deletar_sensor(codsensor) :
         orm.session.delete(delSensor)
         orm.session.commit()
 
-        response = {"mensagem":"sensor deletado"},200
+        response = {"mensagem":"Sensor deletado com sucesso!"},200
     except Exception as e:
         response = {"mensagem":"erro de servidor" + str(e)}, 500
     

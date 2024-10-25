@@ -56,6 +56,7 @@ async function cadastrarUsuario(event) {
 
     const result = await response.json();
     if (response.ok) {
+        alert("Usuário cadastrado com sucesso!")
         window.location.href = "/user";
     } else {
         alert("Erro: " + result.mensagem);
@@ -77,8 +78,81 @@ async function excluirUsuario(event) {
 
     const result = await response.json();
     if (response.ok) {
+        alert("Usuario excluído com sucesso!")
         window.location.href = "/user";
     } else {
         alert("Erro: " + result.mensagem);
+    }
+}
+
+async function atualizarUsuario(event) {
+    event.preventDefault();
+    const form = document.getElementById("cadastroForm3");
+    const formData = new FormData(form);
+    const codusu = formData.get("codusu");
+    const campo = formData.get("campo");
+    const valor = formData.get("valor");
+    let rota = null;
+    let data = null;
+    if (campo == "1") {
+
+        data = {
+            codusu: codusu,
+            nome: valor
+        };
+        rota = "/atualizaNome";
+    }
+    if (campo == "2") {
+
+        data = {
+            codusu: codusu,
+            login: valor
+        };
+        rota = "/atualizaLogin";
+    }
+    if (campo == "3") {
+
+        data = {
+            codusu: codusu,
+            email: valor
+        };
+        rota = "/atualizaEmail";
+    }
+    if (campo == "4") {
+
+        data = {
+            codusu: codusu,
+            senha: valor
+        };
+        rota = "/atualizaSenha";
+    }
+
+    const response = await fetch(rota, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+    });
+
+    const result = await response.json();
+    if (response.ok) {
+        alert(result.mensagem + " com sucesso!");
+        window.location.href = "/user";
+    } else {
+        alert("Erro: " + result.mensagem);
+    }
+}
+
+function mudarTipoCampo() {
+    const campoSelect = document.getElementById('campo');
+    const valorInput = document.getElementById('valor');
+
+    if (campoSelect.value === '4') { // Quando "Senha" é selecionado
+        valorInput.type = 'password';
+    } else if (campoSelect.value === '3') {
+        valorInput.type = 'email';
+    } else {
+        valorInput.type = 'email';
     }
 }

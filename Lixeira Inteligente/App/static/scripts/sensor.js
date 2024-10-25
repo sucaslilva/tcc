@@ -1,84 +1,137 @@
 async function getData() {
-    try {
-      const response = await fetch("/sensores"); // Substitua '/endpoint' pelo seu endpoint
+  try {
+    const response = await fetch("/sensores"); // Substitua '/endpoint' pelo seu endpoint
 
-      if (!response.ok) {
-        throw new Error(
-          "Network response was not ok " + response.statusText
-        );
-      }
-
-      const data = await response.json();
-      populateTable(data); // Chama a função para popular a tabela com os dados
-    } catch (error) {
-      console.error("Houve um problema com a operação fetch:", error);
+    if (!response.ok) {
+      throw new Error(
+        "Network response was not ok " + response.statusText
+      );
     }
+
+    const data = await response.json();
+    populateTable(data); // Chama a função para popular a tabela com os dados
+  } catch (error) {
+    console.error("Houve um problema com a operação fetch:", error);
   }
+}
 
-  function populateTable(users) {
-    const tableBody = document.getElementById("userTableBody");
-    tableBody.innerHTML = ""; // Limpa o conteúdo existente
+function populateTable(users) {
+  const tableBody = document.getElementById("userTableBody");
+  tableBody.innerHTML = ""; // Limpa o conteúdo existente
 
-    users.forEach((user, index) => {
-      const row = tableBody.insertRow();
+  users.forEach((user, index) => {
+    const row = tableBody.insertRow();
 
-      const cod = row.insertCell(0);
-      const descricao = row.insertCell(1);
-      const ip = row.insertCell(2);
-      const altura = row.insertCell(3);
-      cod.textContent = user.codsensor; // ID começa em 1
-      descricao.textContent = user.descricao; // Ajuste os nomes das propriedades conforme seu JSON
-      ip.textContent = user.ip; // Ajuste os nomes das propriedades conforme seu JSON
-      altura.textContent = user.altura; // Ajuste os nomes das propriedades conforme seu JSON
-    });
+    const cod = row.insertCell(0);
+    const descricao = row.insertCell(1);
+    const ip = row.insertCell(2);
+    const altura = row.insertCell(3);
+    cod.textContent = user.codsensor; // ID começa em 1
+    descricao.textContent = user.descricao; // Ajuste os nomes das propriedades conforme seu JSON
+    ip.textContent = user.ip; // Ajuste os nomes das propriedades conforme seu JSON
+    altura.textContent = user.altura; // Ajuste os nomes das propriedades conforme seu JSON
+  });
+}
+
+// Chama a função getData quando a página é carregada
+window.onload = getData;
+
+async function cadastrarSensor(event) {
+  event.preventDefault();
+  const form = document.getElementById("cadastroForm");
+  const formData = new FormData(form);
+  const data = {
+    descricao: formData.get("descricao"),
+    ip: formData.get("ip"),
+    altura: formData.get("altura"),
+  };
+
+  const response = await fetch("/cadastrarSensor", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+
+  const result = await response.json();
+  if (response.ok) {
+    alert("Sensor cadastrado com sucesso!")
+    window.location.href = "/sensor";
+  } else {
+    alert("Erro: " + result.mensagem);
   }
+}
 
-  // Chama a função getData quando a página é carregada
-  window.onload = getData;
+async function excluirSensor(event) {
+  event.preventDefault();
+  const form = document.getElementById("cadastroForm2");
+  const formData = new FormData(form);
+  const codsensor = formData.get("codsensor");
 
-  async function cadastrarSensor(event) {
-    event.preventDefault();
-    const form = document.getElementById("cadastroForm");
-    const formData = new FormData(form);
-    const data = {
-      descricao: formData.get("descricao"),
-      ip: formData.get("ip"),
-      altura: formData.get("altura"),
+  const response = await fetch("/sensor/" + codsensor, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  const result = await response.json();
+  if (response.ok) {
+    alert(result.mensagem);
+    window.location.href = "/sensor";
+  } else {
+    alert("Erro: " + result.mensagem);
+  }
+}
+
+async function atualizarSensor(event) {
+  event.preventDefault();
+  const form = document.getElementById("cadastroForm3");
+  const formData = new FormData(form);
+  const codsensor = formData.get("codsensor");
+  const campo = formData.get("campo");
+  const valor = formData.get("valor");
+  let rota = null;
+  let data = null;
+  if (campo == "1") {
+
+    data = {
+      codsensor: codsensor,
+      descricao: valor
     };
+    rota = "/atualizaDescricao";
+  }
+  if (campo == "2") {
 
-    const response = await fetch("/cadastrarSensor", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    });
+    data = {
+      codsensor: codsensor,
+      ip: valor
+    };
+    rota = "/atualizaIp";
+  }
+  if (campo == "3") {
 
-    const result = await response.json();
-    if (response.ok) {
-      window.location.href = "/sensor";
-    } else {
-      alert("Erro: " + result.mensagem);
-    }
+    data = {
+      codsensor: codsensor,
+      altura: valor
+    };
+    rota = "/atualizaAltura";
   }
 
-  async function excluirSensor(event) {
-    event.preventDefault();
-    const form = document.getElementById("cadastroForm2");
-    const formData = new FormData(form);
-    const codsensor = formData.get("codsensor");
+  const response = await fetch(rota, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
 
-    const response = await fetch("/sensor/" + codsensor, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-
-    const result = await response.json();
-    if (response.ok) {
-      window.location.href = "/sensor";
-    } else {
-      alert("Erro: " + result.mensagem);
-    }
+  const result = await response.json();
+  if (response.ok) {
+    alert(result.mensagem + " com sucesso!");
+    window.location.href = "/sensor";
+  } else {
+    alert("Erro: " + result.mensagem);
   }
+}

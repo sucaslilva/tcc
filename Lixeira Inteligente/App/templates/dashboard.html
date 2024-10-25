@@ -15,10 +15,10 @@
 <body style="height: 100vh; background: #e7e7e7">
   <nav class="navbar navbar-expand-lg" style="background-color: #03366a">
     <div class="container-fluid">
-      <a class="navbar-brand" href="#"><img src="{{ url_for('static', filename='image/logo-brancol.png') }}" alt="Logo"
-          width="125" height="35" class="d-inline-block align-text-top" /></a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-        aria-controls="navbarNav" aria-expanded="true" aria-label="Toggle navigation">
+      <a class="navbar-brand" href="#">
+        <img src="{{ url_for('static', filename='image/logo-brancol.png') }}" alt="Logo" width="125" height="35" class="d-inline-block align-text-top" />
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="true" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarNav">
@@ -33,9 +33,13 @@
             <a class="nav-link" href="/sensor" style="color: white">Sensores</a>
           </li>
         </ul>
+        <div class="ms-auto" style="color: white; font-size: 1.1em;">
+          Olá, Lucas
+        </div>
       </div>
     </div>
   </nav>
+  
 
   <div style="margin: 20px">
     <div class="grid">
@@ -94,7 +98,7 @@
               <div class="col">
                 <h1 id="maxSensor" style="color: #1bb89c; align-items: center"></h1>
               </div>
-              <div class="col text-end" style="color: #1bb89c">
+              <div id="maxSensor2" class="col text-end" style="color: #1bb89c">
                 <h1>
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                     class="bi bi-clipboard-data" viewBox="0 0 16 16">
@@ -127,7 +131,7 @@
       <div class="g-col-6">
         <div class="card">
           <div class="card-body">
-            Status Lixeira 2
+            Histórico Lixeira
             <div class="row">
               <canvas id="myLineChart"></canvas>
             </div>
