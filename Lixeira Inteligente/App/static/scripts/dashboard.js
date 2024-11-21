@@ -86,7 +86,7 @@ async function createCharts(maxSensor) {
   });
 
   // Busca dados para o gráfico de linha
-  const sensorData = await fetchData('/sensoresMesAtual');
+  const sensorData = await fetchData('/sensoresDiaAtual');
   
   // Processa dados recebidos do endpoint
   const labels = sensorData.map(item => item.data_hora);

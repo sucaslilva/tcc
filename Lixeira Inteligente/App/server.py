@@ -4,13 +4,15 @@ from datetime import datetime, timedelta, timezone
 from flask import Blueprint
 from sqlalchemy import func 
 import bcrypt
+# Definindo o fuso horário de Brasília (UTC-3)
+brt = timezone(timedelta(hours=-3))
 
 servidor = Flask(__name__)
+#Configura Banco de dados
 servidor.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///bin.db"
 
 orm = SQLAlchemy()
-# Definindo o fuso horário de Brasília (UTC-3)
-brt = timezone(timedelta(hours=-3))
+#Cria tabelas
 class gravaUser(orm.Model) :
     codusu = orm.Column(orm.Integer, primary_key = True, autoincrement = True)
     email = orm.Column(orm.String, nullable = False,unique=True)
@@ -32,6 +34,9 @@ class logSensor(orm.Model):
     porc_vol = orm.Column(orm.Float, nullable=False)
 
 orm.init_app(servidor)
+
+
+
 #Home
 @servidor.route("/")
 def home():
@@ -207,20 +212,21 @@ def max_lixeira():
     except Exception as e:
         return jsonify({"mensagem": "Erro: " + str(e)}), 400
 
-#log no mês atual
-@servidor.route("/sensoresMesAtual")
-def busca_mes():
+#log no dia atual
+@servidor.route("/sensoresDiaAtual")
+def busca_dia():
     now = datetime.now()
-    valorini = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-    valorfin = (now.replace(day=1) + timedelta(days=32)).replace(day=1, hour=23, minute=59, second=59, microsecond=999999) - timedelta(days=1)
+    valorini = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    valorfin = now.replace(hour=23, minute=59, second=59, microsecond=999999)
+    
     sensores = logSensor.query.filter(logSensor.data_hora.between(valorini, valorfin)).all()
     
     response = [{
-            "data_hora" : sensor.data_hora.strftime("%d/%m/%Y"),
-            "porc_vol" : sensor.porc_vol
-        } for sensor in sensores ]
+            "data_hora": sensor.data_hora.strftime("%H:%M:%S"),
+            "porc_vol": sensor.porc_vol
+        } for sensor in sensores]
 
-    return response,200
+    return response, 200
 
 @servidor.route("/user/<int:codusu>", methods=['DELETE'])
 def deletar_usuario(codusu) :
