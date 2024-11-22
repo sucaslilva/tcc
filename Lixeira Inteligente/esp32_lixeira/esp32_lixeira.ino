@@ -1,8 +1,6 @@
 #include <WiFi.h>
 #include <WiFiClient.h>
-#include <WiFiAP.h>
 #include <ESPAsyncWebServer.h>
-#include <string.h>
 #include <HTTPClient.h>
 #include "index.h"
 
@@ -14,11 +12,11 @@ const char *senha = "lpsilva123";
 
 const char* serverUrl = "http://lsconnectiondb.ddns.net:8180/status";
 
-
 String html = "";
 float altura = 19.00;
 float cont = 0.00;
 AsyncWebServer server(80);
+
 void enviaLogSensor(int sensor_id, float porc_vol) {
   if (WiFi.status() == WL_CONNECTED) {
     HTTPClient http;
@@ -47,38 +45,52 @@ void enviaLogSensor(int sensor_id, float porc_vol) {
     Serial.println("Erro na conexão Wi-Fi");
   }
 }
-void setup() {
 
+void connectWiFi() {
+  Serial.println("Conectando a...");
+  Serial.println(ssid);
+
+  WiFi.begin(ssid, senha);
+  unsigned long startAttemptTime = millis();
+
+  // Verifica conexão com timeout
+  while (WiFi.status() != WL_CONNECTED && millis() - startAttemptTime < 30000) {
+    delay(500);
+    Serial.print(".");
+  }
+
+  if (WiFi.status() == WL_CONNECTED) {
+    Serial.println("");
+    Serial.println("WiFi Conectado");
+    Serial.println("IP: ");
+    Serial.println(WiFi.localIP());
+  } else {
+    Serial.println("Falha na conexão WiFi");
+  }
+}
+
+void setup() {
   Serial.begin(9600);
 
   pinMode(PINO_TRIG, OUTPUT); // Configura o pino TRIG como saída
   pinMode(PINO_ECHO, INPUT); // Configura o pino ECHO como entrada
 
-  //Início conexão com o WIFI
-  Serial.println("Conectando a...");
-  Serial.println(ssid);
+  connectWiFi();
 
-  WiFi.begin(ssid,senha);
-  // Verifica conexão
-  while (WiFi.status() != WL_CONNECTED){
-    delay(500);
-    Serial.println(".");
-  }
-  Serial.println("");
-  Serial.println("WiFi Conectado");
-  Serial.println("IP: ");
-  Serial.println(WiFi.localIP());
-
- /*server.on("/", HTTP_GET, [] (AsyncWebServerRequest *request){
+  /*server.on("/", HTTP_GET, [] (AsyncWebServerRequest *request){
     request->send(200,"text/html",getHTML(html));
   });
 
   server.begin();*/
 }
+
 void loop() {
+  if (WiFi.status() != WL_CONNECTED) {
+    connectWiFi();
+  }
 
   digitalWrite(PINO_TRIG, LOW);
-  delayMicroseconds(10);
+  delayMicroseconds(2); // Ajuste do tempo de delay
   digitalWrite(PINO_TRIG, HIGH);
   delayMicroseconds(10);
   digitalWrite(PINO_TRIG, LOW);
@@ -90,15 +102,16 @@ void loop() {
   Serial.println(" cm");
 
   // Calcula capacidade
-  float capacidade = 100 - ((distancia * 100) / altura);
+  float capacidade = ((distancia * 100) / altura);
   // Arredonda para duas casas
   capacidade = round(capacidade * 100.0) / 100.0;
   // Valida capacidade > 0
-  if (capacidade >= 0){
+  if (capacidade >= 0) {
+    Serial.print("Capacidade: ");
+    Serial.print(capacidade);
+    Serial.println(" %");
     enviaLogSensor(1, capacidade);
   }
-   
- 
-  //html = String(capacidade);
-  delay(900000);
+  
+  delay(900000); 
 }
